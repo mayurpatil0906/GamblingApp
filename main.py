@@ -8,6 +8,8 @@ from services.win_loss_calculator_service import WinLossCalculatorService
 from models.odds_type import OddsType
 from services.input_validator import InputValidator
 from services.safe_input_handler import SafeInputHandler
+from services.interactive_menu import InteractiveMenu
+from services.simple_game_engine import SimpleGameEngine
 
 gambler_service = GamblerService()
 session_service = SessionService()
@@ -17,6 +19,14 @@ game_session_manager = GameSessionManager()
 win_loss_service = WinLossCalculatorService()
 input_validator = InputValidator()
 safe_input = SafeInputHandler()
+interactive_menu = InteractiveMenu()
+
+simple_game_engine = SimpleGameEngine(
+    gambler_service=gambler_service,
+    betting_service=betting_service,
+    win_loss_service=win_loss_service,
+    game_session_manager=game_session_manager
+)
 
 def use_case_1_menu():
     print("\n===== USE CASE 1: GAMBLER PROFILE MANAGEMENT =====")
@@ -415,6 +425,27 @@ def use_case_6_menu():
 
     else:
         print("Invalid choice")
+def use_case_7_menu():
+    interactive_menu.display_user_interaction_menu()
+    choice = input("Enter choice: ").strip()
+
+    if choice == "1":
+        simple_game_engine.display_current_status()
+
+    elif choice == "2":
+        simple_game_engine.prompt_for_bet_amount()
+
+    elif choice == "3":
+        simple_game_engine.show_game_outcome()
+
+    elif choice == "4":
+        simple_game_engine.present_session_summary()
+
+    elif choice == "5":
+        simple_game_engine.start_interactive_demo()
+
+    else:
+        print("Invalid choice")
 
 def main():
     while True:
@@ -425,6 +456,8 @@ def main():
         print("4. Use Case 4 - Game Session Management")
         print("5. Use Case 5 - Win/Loss Calculation")
         print("6. Use Case 6 - Input Validation and Error Handling")
+        print("7. Use Case 7 - User Interaction")
+        
         print("0. Exit")
 
         choice = input("Enter your choice: ").strip()
@@ -441,6 +474,8 @@ def main():
             use_case_5_menu()
         elif choice == "6":
             use_case_6_menu()
+        elif choice == "7":
+            use_case_7_menu()
         elif choice == "0":
             print("Exiting application...")
             break

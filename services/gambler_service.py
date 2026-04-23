@@ -4,10 +4,22 @@ from datetime import datetime
 
 class GamblerService:
 
-    def create_gambler(self, gambler_id, username, full_name, email,
-                        initial_stake, win_threshold, loss_threshold, min_required_stake):
-
+    def create_gambler(
+        self,
+        gambler_id,
+        username,
+        full_name,
+        email,
+        initial_stake,
+        win_threshold,
+        loss_threshold,
+        min_required_stake
+    ):
         connection = create_connection()
+        if connection is None:
+            print("Database connection failed")
+            return
+
         cursor = connection.cursor()
 
         query = """
@@ -36,34 +48,59 @@ class GamblerService:
             now
         )
 
-        cursor.execute(query, values)
-        connection.commit()
+        try:
+            cursor.execute(query, values)
+            connection.commit()
+            print("Gambler created successfully")
+        except Exception as e:
+            print(f"Error creating gambler: {e}")
+        finally:
+            cursor.close()
+            connection.close()
 
-        print("Gambler created successfully")
-
-        cursor.close()
-        connection.close()
-
-
-    def get_gambler(self, gambler_id):
-
+    def get_all_gamblers(self):
         connection = create_connection()
+        if connection is None:
+            return []
+
         cursor = connection.cursor()
 
-        query = "SELECT * FROM gamblers WHERE gambler_id = %s"
+        try:
+            query = "SELECT * FROM gamblers"
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
+        except Exception as e:
+            print(f"Error fetching gamblers: {e}")
+            return []
+        finally:
+            cursor.close()
+            connection.close()
 
-        cursor.execute(query, (gambler_id,))
-        result = cursor.fetchone()
+    def get_gambler(self, gambler_id):
+        connection = create_connection()
+        if connection is None:
+            return None
 
-        cursor.close()
-        connection.close()
+        cursor = connection.cursor()
 
-        return result
-
+        try:
+            query = "SELECT * FROM gamblers WHERE gambler_id = %s"
+            cursor.execute(query, (gambler_id,))
+            result = cursor.fetchone()
+            return result
+        except Exception as e:
+            print(f"Error fetching gambler: {e}")
+            return None
+        finally:
+            cursor.close()
+            connection.close()
 
     def update_gambler(self, gambler_id, new_stake):
-
         connection = create_connection()
+        if connection is None:
+            return
+
         cursor = connection.cursor()
 
         query = """
@@ -72,24 +109,24 @@ class GamblerService:
         WHERE gambler_id = %s
         """
 
-        cursor.execute(query, (new_stake, datetime.now(), gambler_id))
-        connection.commit()
-
-        print("Gambler updated successfully")
-
-        cursor.close()
-        connection.close()
-
+        try:
+            cursor.execute(query, (new_stake, datetime.now(), gambler_id))
+            connection.commit()
+            print("Gambler updated successfully")
+        except Exception as e:
+            print(f"Error updating gambler: {e}")
+        finally:
+            cursor.close()
+            connection.close()
 
     def validate_gambler(self, gambler_id):
-
         gambler = self.get_gambler(gambler_id)
 
         if gambler is None:
             return False, "Gambler not found"
 
-        current_stake = gambler[6]
-        min_required = gambler[9]
+        current_stake = float(gambler[6])
+        min_required = float(gambler[9])
         is_active = gambler[4]
 
         if not is_active:
@@ -100,10 +137,11 @@ class GamblerService:
 
         return True, "Eligible"
 
-
     def reset_gambler(self, gambler_id):
-
         connection = create_connection()
+        if connection is None:
+            return
+
         cursor = connection.cursor()
 
         query = """
@@ -113,10 +151,12 @@ class GamblerService:
         WHERE gambler_id = %s
         """
 
-        cursor.execute(query, (datetime.now(), gambler_id))
-        connection.commit()
-
-        print("Gambler reset successfully")
-
-        cursor.close()
-        connection.close()
+        try:
+            cursor.execute(query, (datetime.now(), gambler_id))
+            connection.commit()
+            print("Gambler reset successfully")
+        except Exception as e:
+            print(f"Error resetting gambler: {e}")
+        finally:
+            cursor.close()
+            connection.close()
