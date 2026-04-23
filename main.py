@@ -6,6 +6,8 @@ from services.betting_service import BettingService
 from services.game_session_manager import GameSessionManager
 from services.win_loss_calculator_service import WinLossCalculatorService
 from models.odds_type import OddsType
+from services.input_validator import InputValidator
+from services.safe_input_handler import SafeInputHandler
 
 gambler_service = GamblerService()
 session_service = SessionService()
@@ -13,6 +15,8 @@ stake_service = StakeManagementService()
 betting_service = BettingService()
 game_session_manager = GameSessionManager()
 win_loss_service = WinLossCalculatorService()
+input_validator = InputValidator()
+safe_input = SafeInputHandler()
 
 def use_case_1_menu():
     print("\n===== USE CASE 1: GAMBLER PROFILE MANAGEMENT =====")
@@ -311,6 +315,106 @@ def use_case_5_menu():
 
     else:
         print("Invalid choice")
+        
+def use_case_6_menu():
+    print("\n===== USE CASE 6: INPUT VALIDATION AND ERROR HANDLING =====")
+    print("1. Validate Initial Stake")
+    print("2. Validate Bet Amount")
+    print("3. Validate Limits")
+    print("4. Validate Probability")
+    print("5. Validate Stake Non-Negative")
+    print("6. Batch Validation")
+    print("7. Safe Input Demo")
+
+    choice = input("Enter choice: ").strip()
+
+    if choice == "1":
+        try:
+            stake = input("Enter initial stake: ")
+            valid_stake = input_validator.validate_initial_stake(stake)
+            print("Valid initial stake:", valid_stake)
+        except Exception as e:
+            print(e)
+
+    elif choice == "2":
+        try:
+            bet_amount = input("Enter bet amount: ")
+            current_stake = input("Enter current stake: ")
+            min_bet = input("Enter min bet (or press Enter): ").strip()
+            max_bet = input("Enter max bet (or press Enter): ").strip()
+
+            min_bet = None if min_bet == "" else float(min_bet)
+            max_bet = None if max_bet == "" else float(max_bet)
+
+            valid_bet = input_validator.validate_bet_amount(
+                bet_amount,
+                current_stake,
+                min_bet,
+                max_bet
+            )
+            print("Valid bet amount:", valid_bet)
+        except Exception as e:
+            print(e)
+
+    elif choice == "3":
+        try:
+            lower_limit = input("Enter lower limit: ")
+            upper_limit = input("Enter upper limit: ")
+            initial_stake = input("Enter initial stake: ")
+
+            low, up = input_validator.validate_limits(
+                lower_limit,
+                upper_limit,
+                initial_stake
+            )
+            print("Valid limits:", low, up)
+        except Exception as e:
+            print(e)
+
+    elif choice == "4":
+        try:
+            probability = input("Enter probability: ")
+            valid_probability = input_validator.validate_probability(probability)
+            print("Valid probability:", valid_probability)
+        except Exception as e:
+            print(e)
+
+    elif choice == "5":
+        try:
+            stake = input("Enter stake: ")
+            valid_stake = input_validator.validate_stake_non_negative(stake)
+            print("Valid stake:", valid_stake)
+        except Exception as e:
+            print(e)
+
+    elif choice == "6":
+        initial_stake = input("Enter initial stake: ")
+        lower_limit = input("Enter lower limit: ")
+        upper_limit = input("Enter upper limit: ")
+        bet_amount = input("Enter bet amount: ")
+        current_stake = input("Enter current stake: ")
+        probability = input("Enter probability: ")
+
+        result = input_validator.validate_all(
+            initial_stake=initial_stake,
+            bet_amount=bet_amount,
+            current_stake=current_stake,
+            lower_limit=lower_limit,
+            upper_limit=upper_limit,
+            probability=probability
+        )
+        result.print_summary()
+
+    elif choice == "7":
+        print("\n--- Safe Input Demo ---")
+        stake = safe_input.get_valid_initial_stake("Enter valid initial stake: ")
+        print("Accepted initial stake:", stake)
+
+        probability = safe_input.get_valid_probability("Enter valid probability: ")
+        print("Accepted probability:", probability)
+
+    else:
+        print("Invalid choice")
 
 def main():
     while True:
@@ -320,6 +424,7 @@ def main():
         print("3. Use Case 3 - Betting Mechanism")
         print("4. Use Case 4 - Game Session Management")
         print("5. Use Case 5 - Win/Loss Calculation")
+        print("6. Use Case 6 - Input Validation and Error Handling")
         print("0. Exit")
 
         choice = input("Enter your choice: ").strip()
@@ -334,6 +439,8 @@ def main():
             use_case_4_menu()
         elif choice == "5":
             use_case_5_menu()
+        elif choice == "6":
+            use_case_6_menu()
         elif choice == "0":
             print("Exiting application...")
             break
