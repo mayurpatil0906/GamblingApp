@@ -3,11 +3,13 @@ from services.session_service import SessionService
 from services.stake_management_service import StakeManagementService
 from models.transaction_type import TransactionType
 from services.betting_service import BettingService
+from services.game_session_manager import GameSessionManager
 
 gambler_service = GamblerService()
 session_service = SessionService()
 stake_service = StakeManagementService()
 betting_service = BettingService()
+game_session_manager = GameSessionManager()
 
 def use_case_1_menu():
     print("\n===== USE CASE 1: GAMBLER PROFILE MANAGEMENT =====")
@@ -196,6 +198,72 @@ def use_case_3_menu():
 
     else:
         print("Invalid choice")
+def use_case_4_menu():
+    print("\n===== USE CASE 4: GAME SESSION MANAGEMENT =====")
+    print("1. Start New Session")
+    print("2. Continue Session")
+    print("3. Pause Session")
+    print("4. Resume Session")
+    print("5. End Session Manually")
+    print("6. Session Summary")
+
+    choice = input("Enter choice: ").strip()
+
+    if choice == "1":
+        session_id = int(input("Enter session ID: "))
+        gambler_id = int(input("Enter gambler ID: "))
+        starting_stake = float(input("Enter starting stake: "))
+        lower_limit = float(input("Enter lower limit: "))
+        upper_limit = float(input("Enter upper limit: "))
+        min_bet = float(input("Enter min bet: "))
+        max_bet = float(input("Enter max bet: "))
+        max_games = int(input("Enter max games: "))
+        max_session_minutes = int(input("Enter max session minutes: "))
+        default_win_probability = float(input("Enter default win probability: "))
+
+        game_session_manager.start_new_session(
+            session_id=session_id,
+            gambler_id=gambler_id,
+            starting_stake=starting_stake,
+            lower_limit=lower_limit,
+            upper_limit=upper_limit,
+            min_bet=min_bet,
+            max_bet=max_bet,
+            max_games=max_games,
+            max_session_minutes=max_session_minutes,
+            default_win_probability=default_win_probability
+        )
+
+    elif choice == "2":
+        gambler_id = int(input("Enter gambler ID: "))
+        bet_amount = float(input("Enter bet amount: "))
+        outcome = input("Enter outcome (WIN / LOSS): ").strip().upper()
+
+        game_session_manager.continue_session(
+            gambler_id=gambler_id,
+            bet_amount=bet_amount,
+            outcome=outcome
+        )
+
+    elif choice == "3":
+        gambler_id = int(input("Enter gambler ID: "))
+        reason = input("Enter pause reason: ")
+        game_session_manager.pause_session(gambler_id, reason)
+
+    elif choice == "4":
+        gambler_id = int(input("Enter gambler ID: "))
+        game_session_manager.resume_session(gambler_id)
+
+    elif choice == "5":
+        gambler_id = int(input("Enter gambler ID: "))
+        game_session_manager.end_session_manually(gambler_id)
+
+    elif choice == "6":
+        gambler_id = int(input("Enter gambler ID: "))
+        game_session_manager.session_summary(gambler_id)
+
+    else:
+        print("Invalid choice")
 
 def main():
     while True:
@@ -203,6 +271,7 @@ def main():
         print("1. Use Case 1 - Gambler Profile Management")
         print("2. Use Case 2 - Stake Management")
         print("3. Use Case 3 - Betting Mechanism")
+        print("4. Use Case 4 - Game Session Management")
         print("0. Exit")
 
         choice = input("Enter your choice: ").strip()
@@ -213,6 +282,8 @@ def main():
             use_case_2_menu()
         elif choice == "3":
             use_case_3_menu()
+        elif choice == "4":
+            use_case_4_menu()
         elif choice == "0":
             print("Exiting application...")
             break
