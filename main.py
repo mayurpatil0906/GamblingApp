@@ -4,12 +4,15 @@ from services.stake_management_service import StakeManagementService
 from models.transaction_type import TransactionType
 from services.betting_service import BettingService
 from services.game_session_manager import GameSessionManager
+from services.win_loss_calculator_service import WinLossCalculatorService
+from models.odds_type import OddsType
 
 gambler_service = GamblerService()
 session_service = SessionService()
 stake_service = StakeManagementService()
 betting_service = BettingService()
 game_session_manager = GameSessionManager()
+win_loss_service = WinLossCalculatorService()
 
 def use_case_1_menu():
     print("\n===== USE CASE 1: GAMBLER PROFILE MANAGEMENT =====")
@@ -198,6 +201,7 @@ def use_case_3_menu():
 
     else:
         print("Invalid choice")
+        
 def use_case_4_menu():
     print("\n===== USE CASE 4: GAME SESSION MANAGEMENT =====")
     print("1. Start New Session")
@@ -264,6 +268,49 @@ def use_case_4_menu():
 
     else:
         print("Invalid choice")
+        
+def use_case_5_menu():
+    print("\n===== USE CASE 5: WIN/LOSS CALCULATION =====")
+    print("1. Process Game Result")
+    print("2. Show Session Statistics")
+
+    choice = input("Enter choice: ").strip()
+
+    if choice == "1":
+        game_id = int(input("Enter game ID: "))
+        session_id = int(input("Enter session ID: "))
+        bet_id = int(input("Enter bet ID: "))
+        gambler_id = int(input("Enter gambler ID: "))
+        bet_amount = float(input("Enter bet amount: "))
+        odds_type = input("Enter odds type (FIXED / PROBABILITY_BASED / AMERICAN / DECIMAL): ").strip().upper()
+        odds_value = float(input("Enter odds value: "))
+        win_probability = float(input("Enter win probability (0 to 1): "))
+        strategy_type = input("Enter outcome strategy (RANDOM / WEIGHTED): ").strip().upper()
+
+        if strategy_type == "WEIGHTED":
+            house_edge = float(input("Enter house edge (e.g. 0.05): "))
+        else:
+            house_edge = 0.05
+
+        win_loss_service.process_game_result(
+            game_id=game_id,
+            session_id=session_id,
+            bet_id=bet_id,
+            gambler_id=gambler_id,
+            bet_amount=bet_amount,
+            odds_type=odds_type,
+            odds_value=odds_value,
+            win_probability=win_probability,
+            strategy_type=strategy_type,
+            house_edge=house_edge
+        )
+
+    elif choice == "2":
+        session_id = int(input("Enter session ID: "))
+        win_loss_service.show_session_statistics(session_id)
+
+    else:
+        print("Invalid choice")
 
 def main():
     while True:
@@ -272,6 +319,7 @@ def main():
         print("2. Use Case 2 - Stake Management")
         print("3. Use Case 3 - Betting Mechanism")
         print("4. Use Case 4 - Game Session Management")
+        print("5. Use Case 5 - Win/Loss Calculation")
         print("0. Exit")
 
         choice = input("Enter your choice: ").strip()
@@ -284,6 +332,8 @@ def main():
             use_case_3_menu()
         elif choice == "4":
             use_case_4_menu()
+        elif choice == "5":
+            use_case_5_menu()
         elif choice == "0":
             print("Exiting application...")
             break
